@@ -1,4 +1,4 @@
-# programa para criar os dados refs
+# programa para criar os dados refs.*
 # Iago Costa - 09/2017
 import datetime
 import sys
