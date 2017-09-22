@@ -160,7 +160,7 @@ f_tcale.close()
 f_tcals.close()
 f_teqs.close()
 f_trays.close()
-					
+f_tsta.close()					
 
 					
 					
