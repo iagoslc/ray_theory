@@ -4,7 +4,7 @@ import datetime
 import sys
 from os import listdir
 import linecache
-
+import math
 
 phase = 'P'
 
@@ -15,6 +15,8 @@ f_tcals = open('ref.tcals', 'w')
 f_teqs = open('ref.teqs', 'w')
 
 f_trays = open('ref.trays', 'w')
+
+f_tsta = open('ref.tsta', 'w')
 
 
 
@@ -85,10 +87,11 @@ for files in all_files:
 			cc_coeff = x[3]
 			cc_std = x[4]
 			pol = x[5]
-			t0_time = x[6]
-			delay_time = x[7]
+			name_sacfile = x[6]
+			t0_time = x[7]
+			delay_time = x[8]
 			#calculando o tobs
-			t3_time = t0_time + delay_time
+			t3_time = float(t0_time) + float(delay_time)
 			print station
 			
 			
@@ -132,12 +135,14 @@ for files in all_files:
 						evlo_n = 'E'
 					
 					#calculando a covariancia para o ref.trays
-					try:
-						covar = cc_std*cc_std
-					except:
-						covar = 'NaN'
-						
-				
+					
+					covar = float(cc_std)*float(cc_std)
+					if math.isnan(covar) is True:
+						covar = 0.0
+											
+					#transformando take-off angle e backazimute de graus para radianos
+					toa_rad = math.radians(float(toa))
+					baz_rad = math.radians(float(baz))
 					#criando o 'ref.tcale'
 					f_tcale.write('%s.000000\n' % '{:18}'.format(date_database))
 					#criando o 'ref.tcals'
@@ -145,14 +150,16 @@ for files in all_files:
 					#criando o 'ref.teqs'
 					f_teqs.write('%s HDS %s%s%s%s%s%s%s     1000 MB\n'% ('{:11}'.format(date_database),'{:15}'.format(date_pdelin),'{:>2}'.format(evla_g1),'{:>3}'.format(evla_g2),evla_n,'{:>3}'.format(evlo_g1),'{:>3}'.format(evlo_g2),evlo_n))
 					#criando o 'ref.trays'
-					f_trays.write('%s %s %s ********  .%s .%s' % ('{:>5}'.format(counter),'{:11}'.format(date_database),kstnm,str(format(covar, '.5f')).split(".")[1],str(format(float(cc_coeff), '.5f')).split(".")[1]))
-					
+					f_trays.write('%s %s %s ***.****  .%s .%s  .%s%s.%s%s  .00000 %s\n' % ('{:>5}'.format(counter),'{:11}'.format(date_database),'{:4}'.format(kstnm),str(format(float(covar), '.5f')).split(".")[1],str(format(float(cc_coeff), '.5f')).split(".")[1],str(format(float(toa_rad), '.6f')).split(".")[1],str(format(float(baz_rad), '.1f')).split(".")[0],str(format(float(baz_rad), '.6f')).split(".")[1],'{:>9}'.format(t3_time),phase))
+					#criando o 'ref.tsta'
+					f_tsta.write('%s%s %s%s%s%s%s' % (kstnm,'{:>4}'.format(stla.split(".")[0]),str(format(float(stla), '.5f')).split(".")[1],'{:>4}'.format(stlo.split(".")[0]),str(format(float(stlo), '.5f')).split(".")[1],'{:>2}'.format(str(float(stel)/1000).split(".")[0]),'{:>2}'.format(str(float(stel)/1000).split(".")[1])))
 					
 					
 					break
 f_tcale.close()
 f_tcals.close()
 f_teqs.close()
+f_trays.close()
 					
 
 					
